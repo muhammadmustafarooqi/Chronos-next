@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search,
@@ -12,14 +12,35 @@ import {
     CheckCircle,
     Clock,
     X,
-    ExternalLink
+    ExternalLink,
+    RefreshCw
 } from 'lucide-react';
 import { useOrders } from '../../context/OrderContext';
+import api from '../../services/api';
 
 const AdminOrders = () => {
-    const { orders, updateOrderStatus, deleteOrder } = useOrders();
+    const { updateOrderStatus, deleteOrder } = useOrders();
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOrder, setSelectedOrder] = useState(null);
+
+    // Fetch ALL orders from API for admin
+    const fetchOrders = async () => {
+        setLoading(true);
+        try {
+            const response = await api.orders.getAll();
+            setOrders(response.data.orders || []);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     const filteredOrders = orders.filter(o => {
         const id = o.id || '';
@@ -54,6 +75,14 @@ const AdminOrders = () => {
                     <p className="text-gray-400">Track and manage customer orders.</p>
                 </div>
                 <div className="flex gap-3">
+                    <button 
+                        onClick={fetchOrders}
+                        disabled={loading}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:border-luxury-gold/50 transition-colors text-sm flex items-center gap-2"
+                    >
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                        Refresh
+                    </button>
                     <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:border-luxury-gold/50 transition-colors text-sm">
                         Export Orders
                     </button>

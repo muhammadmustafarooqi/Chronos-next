@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, AlertCircle, Check } from 'lucide-react';
 
 const Signup = () => {
     const navigate = useNavigate();
     const { register, isAuthenticated } = useAuth();
+    const { error: showError, success: showSuccess, warning: showWarning } = useToast();
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -35,15 +37,21 @@ const Signup = () => {
 
     const validateForm = () => {
         if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters');
+            const msg = 'Password must be at least 6 characters';
+            setError(msg);
+            showWarning(msg);
             return false;
         }
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
+            const msg = 'Passwords do not match';
+            setError(msg);
+            showWarning(msg);
             return false;
         }
         if (!agreeToTerms) {
-            setError('Please agree to the terms and conditions');
+            const msg = 'Please agree to the terms and conditions';
+            setError(msg);
+            showWarning(msg);
             return false;
         }
         return true;
@@ -66,12 +74,16 @@ const Signup = () => {
             });
 
             if (result.success) {
+                showSuccess('Welcome to the Chronos community!');
                 navigate('/account');
             } else {
                 setError(result.message);
+                showError(result.message || 'Registration failed. Please check your details.');
             }
         } catch (err) {
-            setError(err.message || 'Registration failed');
+            const msg = err.message || 'Registration failed. Please check your connection.';
+            setError(msg);
+            showError(msg);
         } finally {
             setIsLoading(false);
         }

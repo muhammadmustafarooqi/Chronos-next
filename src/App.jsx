@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { WatchProvider } from './context/WatchContext';
 import { OrderProvider } from './context/OrderContext';
 import { CustomerProvider } from './context/CustomerContext';
+import { ToastProvider } from './context/ToastContext';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/AdminLayout';
 
@@ -36,13 +37,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <WatchProvider>
-          <OrderProvider>
-            <CustomerProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <Router>
+      <ToastProvider>
+        <AuthProvider>
+          <WatchProvider>
+            <OrderProvider>
+              <CustomerProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <Router>
                     <ScrollToTop />
                     <Routes>
                       {/* Admin Routes */}
@@ -95,7 +97,8 @@ function App() {
           </OrderProvider>
         </WatchProvider>
       </AuthProvider>
-    </ThemeProvider>
+    </ToastProvider>
+  </ThemeProvider>
   );
 }
 

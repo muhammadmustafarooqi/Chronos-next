@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
     const { login, isAuthenticated } = useAuth();
+    const { error: showError, success: showSuccess } = useToast();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -37,12 +39,16 @@ const Login = () => {
             const result = await login(formData.email, formData.password);
 
             if (result.success) {
+                showSuccess('Welcome back to Chronos!');
                 navigate('/account');
             } else {
                 setError(result.message);
+                showError(result.message || 'Invalid credentials. Please try again.');
             }
         } catch (err) {
-            setError(err.message || 'Login failed');
+            const msg = err.message || 'Login failed. Please check your connection.';
+            setError(msg);
+            showError(msg);
         } finally {
             setIsLoading(false);
         }

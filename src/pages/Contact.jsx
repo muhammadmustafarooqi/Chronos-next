@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, Check } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const Contact = () => {
+    const { success: showSuccess } = useToast();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -20,6 +22,7 @@ const Contact = () => {
         e.preventDefault();
         // Simulate form submission
         setIsSubmitted(true);
+        showSuccess("Your message has been sent successfully. Our concierge will contact you soon.");
         setTimeout(() => setIsSubmitted(false), 3000);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     };

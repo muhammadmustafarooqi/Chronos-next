@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useToast } from './ToastContext';
 
 const CartContext = createContext();
 
@@ -14,6 +15,7 @@ export const CartProvider = ({ children }) => {
         return [];
     });
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const { success: showSuccess } = useToast();
 
     // Save cart to localStorage
     useEffect(() => {
@@ -30,6 +32,7 @@ export const CartProvider = ({ children }) => {
             }
             return [...prev, { ...product, quantity: 1 }];
         });
+        showSuccess(`${product.name} added to cart`);
         setIsCartOpen(true);
     };
 

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import catchAsync from '../utils/catchAsync.js';
 
 // Protect routes - verify JWT token
-export const protect = async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -13,27 +14,29 @@ export const protect = async (req, res, next) => {
             req.user = await User.findById(decoded.id).select('-password');
 
             if (!req.user) {
-                return res.status(401).json({ message: 'User not found' });
+                return res.api.unauthorized('Your account session could not be verified. Please sign in again.');
             }
 
-            next();
+            return next();
         } catch (error) {
-            console.error('Auth error:', error);
-            return res.status(401).json({ message: 'Not authorized, token failed' });
+            if (error.name === 'TokenExpiredError') {
+                return res.api.unauthorized('Your session has expired. Please sign in again.');
+            }
+            return res.api.unauthorized('Invalid security token. Please sign in again.');
         }
     }
 
     if (!token) {
-        return res.status(401).json({ message: 'Not authorized, no token' });
+        return res.api.unauthorized('Please sign in to access this feature.');
     }
-};
+});
 
 // Admin only middleware
 export const adminOnly = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
         next();
     } else {
-        return res.status(403).json({ message: 'Access denied. Admin only.' });
+        return res.api.forbidden('Administrative privileges are required for this action.');
     }
 };
 
@@ -47,7 +50,7 @@ export const optionalAuth = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
         } catch (error) {
-            // Token invalid, but continue without user
+            // Token invalid or expired, but we continue as guest
             req.user = null;
         }
     }

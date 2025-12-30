@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useOrders } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import {
     Truck,
     MapPin,
@@ -20,6 +21,7 @@ const Checkout = () => {
     const { cart, cartTotal, clearCart } = useCart();
     const { addOrder } = useOrders();
     const { user } = useAuth();
+    const { error: showError, success: showSuccess } = useToast();
     const [step, setStep] = useState(1);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
@@ -110,7 +112,7 @@ const Checkout = () => {
         } catch (error) {
             console.error('Error placing order:', error);
             setIsProcessing(false);
-            alert('There was an error placing your order. Please try again.');
+            showError(error.message || 'There was an error placing your order. Please try again.');
         }
     };
 
