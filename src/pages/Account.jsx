@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { User, Mail, Phone, Calendar, LogOut, Package, Heart, Settings } from 'lucide-react';
+import VIPMembershipCard from '../components/VIPMembershipCard';
 
 const Account = () => {
     const navigate = useNavigate();
@@ -57,6 +58,11 @@ const Account = () => {
             {/* Account Content */}
             <section className="py-12">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* VIP Membership Dashboard */}
+                    <div className="mb-12">
+                        <VIPMembershipCard />
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Profile Info */}
                         <motion.div

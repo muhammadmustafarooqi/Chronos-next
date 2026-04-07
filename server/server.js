@@ -13,6 +13,7 @@ import requestLogger from './middleware/logger.js';
 import { responseHelper } from './utils/ApiResponse.js';
 import { apiLimiter, authLimiter } from './middleware/rateLimit.js';
 import cache from './utils/cache.js';
+import { protect, adminOnly } from './middleware/auth.js';
 
 // Route imports
 import authRoutes from './routes/auth.js';
@@ -120,8 +121,8 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Cache management endpoint (admin only in production)
-app.post('/api/cache/clear', (req, res) => {
+// Cache management endpoint (admin only)
+app.post('/api/cache/clear', protect, adminOnly, (req, res) => {
     cache.clear();
     res.json({
         success: true,

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Menu, X, Search, Heart, User, Sun, Moon } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Menu, X, Search, Heart, User, Sun, Moon, Crown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useVIP } from '../context/VIPContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
@@ -12,10 +13,13 @@ const Navbar = () => {
     const { wishlistCount } = useWishlist();
     const { isAuthenticated, user } = useAuth();
     const { isDark, toggleTheme } = useTheme();
+    const { enrolled, tier } = useVIP();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -32,6 +36,7 @@ const Navbar = () => {
     const navLinks = [
         { path: '/', label: 'Home' },
         { path: '/shop', label: 'Collection' },
+        { path: '/vault', label: 'The Vault' },
         { path: '/brands', label: 'Brands' },
         { path: '/admin', label: 'Dashboard', adminOnly: true },
         { path: '/about', label: 'Our Story' },
@@ -126,9 +131,14 @@ const Navbar = () => {
                             {/* Account */}
                             <Link
                                 to={isAuthenticated ? "/account" : "/login"}
-                                className="hidden md:flex p-2 text-white/80 hover:text-luxury-gold transition-colors"
+                                className="hidden md:flex items-center gap-1.5 p-2 text-white/80 hover:text-luxury-gold transition-colors relative group"
                             >
                                 <User size={20} />
+                                {enrolled && (
+                                    <span style={{ color: tier?.color || '#D4AF37' }}>
+                                        <Crown size={12} className="opacity-0 group-hover:opacity-100 absolute -top-1 -right-1 transition-opacity" />
+                                    </span>
+                                )}
                             </Link>
 
                             {/* Cart */}
@@ -233,7 +243,7 @@ const Navbar = () => {
                                 <Link to="/wishlist" className="text-white/60 hover:text-luxury-gold transition-colors">
                                     <Heart size={24} />
                                 </Link>
-                                <Link to="/account" className="text-white/60 hover:text-luxury-gold transition-colors">
+                                <Link to={isAuthenticated ? "/account" : "/login"} className="text-white/60 hover:text-luxury-gold transition-colors">
                                     <User size={24} />
                                 </Link>
                             </motion.div>
@@ -267,6 +277,19 @@ const Navbar = () => {
                                     type="text"
                                     placeholder="Search timepieces, brands..."
                                     autoFocus
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && searchQuery.trim()) {
+                                            navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                                            setIsSearchOpen(false);
+                                            setSearchQuery('');
+                                        }
+                                        if (e.key === 'Escape') {
+                                            setIsSearchOpen(false);
+                                            setSearchQuery('');
+                                        }
+                                    }}
                                     className="w-full bg-luxury-charcoal border border-white/10 rounded-none py-5 pl-16 pr-6 text-white text-lg focus:outline-none focus:border-luxury-gold transition-colors"
                                 />
                                 <button
@@ -276,9 +299,10 @@ const Navbar = () => {
                                     <X size={24} />
                                 </button>
                             </div>
-                            <p className="text-gray-500 text-sm mt-4 text-center">
-                                Press ESC or click outside to close
-                            </p>
+                             
+                             <p className="text-gray-500 text-sm mt-4 text-center">
+                                 Press <kbd className="px-1.5 py-0.5 text-xs border border-white/20 rounded">Enter</kbd> to search · <kbd className="px-1.5 py-0.5 text-xs border border-white/20 rounded">Esc</kbd> to close
+                             </p>
                         </motion.div>
                     </motion.div>
                 )}

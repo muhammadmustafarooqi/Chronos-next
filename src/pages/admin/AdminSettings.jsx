@@ -10,12 +10,19 @@ import {
     Layout,
     Mail,
     Smartphone,
-    CreditCard
+    CreditCard,
+    Upload,
+    Check,
+    AlertCircle
 } from 'lucide-react';
+import api from '../../services/api';
+import { watches as localWatches } from '../../data/watches';
 
 const AdminSettings = () => {
     const [activeTab, setActiveTab] = useState('general');
     const [isSaving, setIsSaving] = useState(false);
+    const [isSeedingDb, setIsSeedingDb] = useState(false);
+    const [seedStatus, setSeedStatus] = useState(null); // 'success' | 'error' | null
 
     const tabs = [
         { id: 'general', label: 'General', icon: Settings },
@@ -28,6 +35,34 @@ const AdminSettings = () => {
     const handleSave = () => {
         setIsSaving(true);
         setTimeout(() => setIsSaving(false), 1500);
+    };
+
+    const handleSeedDatabase = async () => {
+        if (!window.confirm('This will upload all 24 default watches to your MongoDB database. Continue?')) return;
+        setIsSeedingDb(true);
+        setSeedStatus(null);
+        try {
+            // Format watches for API
+            const formatted = localWatches.map(w => ({
+                name: w.name,
+                brand: w.brand,
+                price: w.price,
+                images: w.images,
+                category: w.category,
+                description: w.description || '',
+                features: w.features || [],
+                isNew: w.isNew || false,
+                isFeatured: w.isFeatured || false,
+                stock: 10
+            }));
+            await api.admin.seedProducts(formatted);
+            setSeedStatus('success');
+        } catch (err) {
+            console.error('Seed failed:', err);
+            setSeedStatus('error');
+        } finally {
+            setIsSeedingDb(false);
+        }
     };
 
     return (
@@ -116,21 +151,57 @@ const AdminSettings = () => {
                             </div>
 
                             <div className="pt-8">
-                                <h3 className="text-sm font-bold text-white mb-4">Maintenance Mode</h3>
-                                <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-amber-400/10 flex items-center justify-center">
-                                            <Database className="text-amber-400" size={20} />
+                                <h3 className="text-sm font-bold text-white mb-4">Database Management</h3>
+                                <div className="space-y-4">
+                                    {/* Seed Database */}
+                                    <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-luxury-gold/10 flex items-center justify-center">
+                                                <Upload className="text-luxury-gold" size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-white">Seed Product Database</p>
+                                                <p className="text-xs text-gray-500">Upload all 24 default timepieces to MongoDB.</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-white">Temporary Shutdown</p>
-                                            <p className="text-xs text-gray-500">Only administrators can access the storefront.</p>
+                                        <div className="flex items-center gap-3">
+                                            {seedStatus === 'success' && (
+                                                <span className="flex items-center gap-1 text-green-400 text-xs"><Check size={12} /> Done!</span>
+                                            )}
+                                            {seedStatus === 'error' && (
+                                                <span className="flex items-center gap-1 text-red-400 text-xs"><AlertCircle size={12} /> Failed</span>
+                                            )}
+                                            <button
+                                                onClick={handleSeedDatabase}
+                                                disabled={isSeedingDb}
+                                                className="flex items-center gap-2 px-4 py-2 bg-luxury-gold text-luxury-black text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-white transition-colors disabled:opacity-50"
+                                            >
+                                                {isSeedingDb ? (
+                                                    <div className="w-3 h-3 border-2 border-luxury-black border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <Database size={14} />
+                                                )}
+                                                {isSeedingDb ? 'Seeding...' : 'Seed Now'}
+                                            </button>
                                         </div>
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" className="sr-only peer" />
-                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-gold"></div>
-                                    </label>
+
+                                    {/* Maintenance Mode */}
+                                    <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-amber-400/10 flex items-center justify-center">
+                                                <Database className="text-amber-400" size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-white">Maintenance Mode</p>
+                                                <p className="text-xs text-gray-500">Only administrators can access the storefront.</p>
+                                            </div>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" className="sr-only peer" />
+                                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-gold"></div>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

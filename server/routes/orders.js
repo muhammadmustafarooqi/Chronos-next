@@ -122,21 +122,32 @@ router.post('/', optionalAuth, validate(schemas.createOrder), catchAsync(async (
         return res.api.error('Your cart is empty. Cannot place an order.', 400);
     }
 
-    // Format items and check stock if possible
-    const orderItems = await Promise.all(items.map(async (item) => {
+    // Format items and check stock availability
+    const orderItems = [];
+    for (const item of items) {
         let product = null;
         if (item.id || item._id) {
             product = await Product.findById(item.id || item._id).catch(() => null);
         }
 
-        return {
+        // Check stock if product found in DB
+        if (product !== null) {
+            if (product.stock !== undefined && product.stock < item.quantity) {
+                return res.api.error(
+                    `Sorry, "${item.name}" only has ${product.stock} unit(s) in stock. Please adjust your cart.`,
+                    400
+                );
+            }
+        }
+
+        orderItems.push({
             product: product?._id || item.id || item._id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
             image: item.image || (item.images ? item.images[0] : '')
-        };
-    }));
+        });
+    }
 
     // Format shipping address
     const shippingAddressFormatted = typeof shippingAddress === 'string'
@@ -158,6 +169,15 @@ router.post('/', optionalAuth, validate(schemas.createOrder), catchAsync(async (
         paymentMethod,
         status: 'Pending'
     });
+
+    // Decrement stock for each purchased product
+    for (const item of orderItems) {
+        if (item.product) {
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: { stock: -item.quantity }
+            }).catch(() => null); // Non-blocking: best-effort
+        }
+    }
 
     // Update or create customer record
     const existingCustomer = await Customer.findOne({ email: email.toLowerCase() });

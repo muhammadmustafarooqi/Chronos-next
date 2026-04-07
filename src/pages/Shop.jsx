@@ -2,20 +2,39 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useWatches } from '../context/WatchContext';
 import ProductCard from '../components/ProductCard';
-import { motion } from 'framer-motion';
-import { X, ChevronDown, Grid, LayoutGrid, Sparkles } from 'lucide-react';
+import CompareDrawer, { CompareModal } from '../components/CompareDrawer';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ChevronDown, Grid, LayoutGrid, Sparkles, GitCompare } from 'lucide-react';
 
 const Shop = () => {
     const { watches, getCategories, getBrands } = useWatches();
     const [searchParams] = useSearchParams();
     const categoryParam = searchParams.get('category');
     const brandParam = searchParams.get('brand');
+    const searchParam = searchParams.get('search') || '';
 
-    const [selectedCategory, setSelectedCategory] = useState(categoryParam || 'All');
-    const [selectedBrand, setSelectedBrand] = useState(brandParam || 'All');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedBrand, setSelectedBrand] = useState('All');
     const [priceRange, setPriceRange] = useState('All');
     const [sortBy, setSortBy] = useState('featured');
     const [gridCols, setGridCols] = useState(3);
+    const [compareItems, setCompareItems] = useState([]);
+    const [compareModalOpen, setCompareModalOpen] = useState(false);
+
+    const handleCompare = (product) => {
+        const pid = product._id || product.id;
+        setCompareItems(prev => {
+            if (prev.find(p => (p._id || p.id) === pid)) {
+                return prev.filter(p => (p._id || p.id) !== pid);
+            }
+            if (prev.length >= 3) return prev;
+            return [...prev, product];
+        });
+    };
+
+    const removeFromCompare = (pid) => {
+        setCompareItems(prev => prev.filter(p => (p._id || p.id) !== pid));
+    };
 
     const categories = getCategories();
     const brands = getBrands();
@@ -33,14 +52,15 @@ const Shop = () => {
         { value: 'newest', label: 'Newest First' },
     ];
 
-    // Update filters when URL params change
+    // Sync URL params into local filter state (single source of truth)
     useEffect(() => {
-        if (categoryParam) setSelectedCategory(categoryParam);
-        if (brandParam) setSelectedBrand(brandParam);
+        setSelectedCategory(categoryParam || 'All');
+        setSelectedBrand(brandParam || 'All');
     }, [categoryParam, brandParam]);
 
-    // Filter and sort logic
+    // Filter and sort logic — also applies text search from URL
     const filteredProducts = useMemo(() => {
+        const query = searchParam.toLowerCase().trim();
         let results = watches.filter(watch => {
             const categoryMatch = selectedCategory === 'All' || watch.category === selectedCategory;
             const brandMatch = selectedBrand === 'All' || watch.brand === selectedBrand;
@@ -50,7 +70,13 @@ const Shop = () => {
             else if (priceRange === '10k-50k') priceMatch = watch.price >= 10000 && watch.price <= 50000;
             else if (priceRange === 'over-50k') priceMatch = watch.price > 50000;
 
-            return categoryMatch && brandMatch && priceMatch;
+            const searchMatch = !query ||
+                watch.name?.toLowerCase().includes(query) ||
+                watch.brand?.toLowerCase().includes(query) ||
+                watch.description?.toLowerCase().includes(query) ||
+                watch.category?.toLowerCase().includes(query);
+
+            return categoryMatch && brandMatch && priceMatch && searchMatch;
         });
 
         // Sort
@@ -81,7 +107,11 @@ const Shop = () => {
         setSortBy('featured');
     };
 
+    // Compute active filter tags — also include search as a badge
+    const searchBadge = searchParam ? [{ type: 'search', label: `"${searchParam}"`, clear: () => {} }] : [];
+
     const activeFilters = [
+        ...searchBadge,
         selectedCategory !== 'All' && { type: 'category', label: selectedCategory, clear: () => setSelectedCategory('All') },
         selectedBrand !== 'All' && { type: 'brand', label: selectedBrand, clear: () => setSelectedBrand('All') },
         priceRange !== 'All' && { type: 'price', label: priceRanges.find(p => p.value === priceRange)?.label, clear: () => setPriceRange('All') },
@@ -269,9 +299,18 @@ const Shop = () => {
                             ? 'grid-cols-1 md:grid-cols-2'
                             : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
                             }`}>
-                            {filteredProducts.map((product, index) => (
-                                <ProductCard key={product.id} product={product} index={index} />
-                            ))}
+                            {filteredProducts.map((product, index) => {
+                                const pid = product._id || product.id;
+                                return (
+                                    <ProductCard
+                                        key={pid}
+                                        product={product}
+                                        index={index}
+                                        onCompare={handleCompare}
+                                        isComparing={compareItems.some(p => (p._id || p.id) === pid)}
+                                    />
+                                );
+                            })}
                         </div>
                     ) : (
                         <motion.div
@@ -293,6 +332,41 @@ const Shop = () => {
                     )}
                 </div>
             </section>
+
+            {/* Compare Drawer */}
+            {compareItems.length > 0 && (
+                <CompareDrawer
+                    items={compareItems}
+                    onRemove={removeFromCompare}
+                    onClear={() => setCompareItems([])}
+                />
+            )}
+
+            {/* Compare Now Button */}
+            {compareItems.length >= 2 && (
+                <div className="fixed bottom-32 right-6 z-[85]">
+                    <motion.button
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        onClick={() => setCompareModalOpen(true)}
+                        className="flex items-center gap-2 px-5 py-3 bg-luxury-gold text-luxury-black font-bold text-sm uppercase tracking-wider rounded-full shadow-2xl hover:bg-white transition-colors"
+                    >
+                        <GitCompare size={16} />
+                        Compare Now
+                    </motion.button>
+                </div>
+            )}
+
+            {/* Compare Modal */}
+            <AnimatePresence>
+                {compareModalOpen && (
+                    <CompareModal
+                        items={compareItems}
+                        onClose={() => setCompareModalOpen(false)}
+                        onRemove={removeFromCompare}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -29,6 +29,7 @@ export const WatchProvider = ({ children }) => {
                 }
             } catch (err) {
                 console.error('Error fetching watches:', err);
+                setError(err.message || 'Failed to load products from server.');
                 // Fall back to initial data
                 setWatches(initialWatches);
             } finally {
@@ -52,14 +53,14 @@ export const WatchProvider = ({ children }) => {
             return { success: true, product: newWatch };
         } catch (err) {
             console.error('Error adding watch:', err);
-            // Fallback to local state if API fails
+            // Fallback to local state
             const newWatch = {
                 ...watchData,
                 id: Date.now(),
                 images: watchData.images || ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80']
             };
             setWatches(prev => [newWatch, ...prev]);
-            return { success: true, product: newWatch };
+            return { success: false, product: newWatch, message: err.message };
         }
     };
 
@@ -93,7 +94,7 @@ export const WatchProvider = ({ children }) => {
             console.error('Error deleting watch:', err);
             // Fallback to local state
             setWatches(prev => prev.filter(w => w.id !== id && w._id !== id));
-            return { success: true };
+            return { success: false, message: err.message };
         }
     };
 

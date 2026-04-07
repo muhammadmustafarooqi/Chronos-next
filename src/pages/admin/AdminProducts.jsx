@@ -75,6 +75,7 @@ const AdminProducts = () => {
                                 <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider">Brand</th>
                                 <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider">Category</th>
                                 <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider">Price</th>
+                                <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider">Stock</th>
                                 <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-sm font-serif font-semibold text-luxury-gold uppercase tracking-wider text-right">Actions</th>
                             </tr>
@@ -105,6 +106,19 @@ const AdminProducts = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm font-bold text-white">
                                         ${product.price.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {product.stock !== undefined ? (
+                                            <span className={`text-sm font-bold ${
+                                                product.stock <= 0 ? 'text-red-400' :
+                                                product.stock <= 3 ? 'text-orange-400' :
+                                                'text-green-400'
+                                            }`}>
+                                                {product.stock <= 0 ? 'Out of Stock' : `${product.stock} left`}
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-600 text-xs">N/A</span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
@@ -171,7 +185,8 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
         images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80'],
         features: [],
         isNew: true,
-        isFeatured: false
+        isFeatured: false,
+        stock: 10
     });
 
     const handleSubmit = (e) => {
@@ -242,12 +257,35 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-luxury-gold"
                             >
-                                <option className="bg-luxury-black">Luxury</option>
-                                <option className="bg-luxury-black">Sport</option>
-                                <option className="bg-luxury-black">Classic</option>
-                                <option className="bg-luxury-black">Diver</option>
-                                <option className="bg-luxury-black">Pilot</option>
+                                {['Luxury','Sport','Classic','Diver','Pilot','Racing','Heritage','Dress','Explorer','Exotic'].map(cat => (
+                                    <option key={cat} className="bg-luxury-black" value={cat}>{cat}</option>
+                                ))}
                             </select>
+                        </div>
+                    </div>
+
+                    {/* Stock & Image Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-400 uppercase tracking-wider">Stock Quantity</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={formData.stock ?? 10}
+                                onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-luxury-gold"
+                                placeholder="10"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-400 uppercase tracking-wider">Image URL</label>
+                            <input
+                                type="url"
+                                value={formData.images?.[0] || ''}
+                                onChange={(e) => setFormData({ ...formData, images: [e.target.value] })}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-luxury-gold"
+                                placeholder="https://..."
+                            />
                         </div>
                     </div>
 

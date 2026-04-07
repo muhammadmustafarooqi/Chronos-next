@@ -53,6 +53,7 @@ const Checkout = () => {
             }));
         }
     }, [user]);
+    // Note: shippingData.email is intentionally omitted — we only pre-fill once from user
 
     const [paymentMethod, setPaymentMethod] = useState('cod');
 
@@ -96,8 +97,6 @@ const Checkout = () => {
                 },
                 paymentMethod: paymentMethod
             };
-
-            console.log('Creating order:', orderData);
 
             // Call API through OrderContext (which handles MongoDB and fallback)
             const result = await addOrder(orderData);
@@ -160,8 +159,11 @@ const Checkout = () => {
 
                         <div className="glass-card p-6 sm:p-8 mb-6 sm:mb-8 text-left">
                             <h3 className="text-white font-serif text-lg mb-6 flex items-center gap-3">
-                                <Banknote className="text-luxury-gold" size={20} />
-                                Cash on Delivery
+                                {paymentMethod === 'cod' ? (
+                                    <><Banknote className="text-luxury-gold" size={20} /> Cash on Delivery</>
+                                ) : (
+                                    <><CreditCard className="text-luxury-gold" size={20} /> Card Payment</>
+                                )}
                             </h3>
                             <div className="space-y-4 text-sm">
                                 <div className="flex justify-between">

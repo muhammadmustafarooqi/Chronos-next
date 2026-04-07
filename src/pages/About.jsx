@@ -94,55 +94,87 @@ const About = () => {
                 </div>
             </section>
 
-            {/* Story */}
-            <section className="py-28">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Heritage / Watchmaking Immersive Section */}
+            <section className="relative py-32 bg-[#050505] overflow-hidden">
+                {/* Background decorative elements */}
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-luxury-charcoal/50 to-transparent pointer-events-none" />
+                <div className="absolute -left-40 top-1/4 w-96 h-96 bg-luxury-gold/5 rounded-full blur-[100px] pointer-events-none" />
+                
+                <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-0 items-center">
+                        
+                        {/* Text Block - Overlapping the image on large screens */}
                         <motion.div
-                            initial={{ opacity: 0, x: -30 }}
+                            initial={{ opacity: 0, x: -50 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "-100px" }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="lg:col-span-5 lg:col-start-1 z-20"
                         >
-                            <h2 className="text-4xl font-serif font-bold text-white mb-8">
-                                The Art of Timekeeping
-                            </h2>
-                            <div className="space-y-6 text-gray-400 leading-relaxed">
-                                <p>
-                                    CHRONOS was founded with a singular vision: to create a sanctuary for those who understand
-                                    that a timepiece is more than an instrument—it's a statement of values, a connection to
-                                    history, and a work of art.
-                                </p>
-                                <p>
-                                    Our curators travel the world, building relationships with the most prestigious
-                                    manufacturers and private collectors. We meticulously verify the authenticity and
-                                    provenance of every piece in our collection.
-                                </p>
-                                <p>
-                                    Whether you're acquiring your first luxury watch or adding a rare complication to an
-                                    established collection, our team of experts is dedicated to guiding you on your horological journey.
-                                </p>
+                            <div className="bg-luxury-black/80 backdrop-blur-2xl border border-white/5 p-10 lg:p-14 shadow-2xl relative">
+                                <div className="absolute top-0 left-0 w-1 h-12 bg-luxury-gold" />
+                                
+                                <span className="text-luxury-gold text-xs uppercase tracking-[0.4em] font-medium mb-6 block">
+                                    Our Heritage
+                                </span>
+                                
+                                <h2 className="text-5xl lg:text-6xl font-serif text-white mb-8 leading-[1.1] tracking-tight">
+                                    The Art of <br />
+                                    <span className="text-gray-500 italic font-light">Watchmaking</span>
+                                </h2>
+                                
+                                <div className="space-y-6 text-gray-400 text-sm leading-[1.9] font-light">
+                                    <p>
+                                        CHRONOS was founded with a singular vision: to create a sanctuary for those who understand
+                                        that a timepiece is more than an instrument—it is the culmination of centuries of human ingenuity, 
+                                        a statement of uncompromising values, and a wearable work of art.
+                                    </p>
+                                    <p>
+                                        Our master curators travel the globe, building intimate relationships with the most prestigious
+                                        manufacturers and elite private collectors. Every gear, every spring, and every polished facet 
+                                        is meticulously verified to guarantee legendary provenance.
+                                    </p>
+                                    <p className="text-white/80 font-medium italic">
+                                        "Time is the ultimate luxury. How you measure it should be extraordinary."
+                                    </p>
+                                </div>
+                                
+                                <Link
+                                    to="/contact"
+                                    className="inline-flex items-center gap-3 text-luxury-gold hover:text-white transition-colors mt-12 group"
+                                >
+                                    <span className="uppercase tracking-[0.3em] text-[10px] font-bold">Consult a Horologist</span>
+                                    <ArrowRight size={16} className="transform group-hover:translate-x-3 transition-transform duration-500" />
+                                </Link>
                             </div>
-                            <Link
-                                to="/contact"
-                                className="inline-flex items-center gap-3 text-luxury-gold hover:text-white transition-colors mt-8 group"
-                            >
-                                <span className="uppercase tracking-[0.2em] text-sm font-medium">Get in Touch</span>
-                                <ArrowRight size={18} className="transform group-hover:translate-x-2 transition-transform" />
-                            </Link>
                         </motion.div>
 
+                        {/* Image Block - Larger and slightly offset */}
                         <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="relative"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true, margin: "-100px" }}
+                            transition={{ duration: 1.2, ease: "easeOut" }}
+                            className="lg:col-span-8 lg:col-start-5 lg:-ml-24 relative z-10"
                         >
-                            <img
-                                src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80"
-                                alt="Luxury Watch"
-                                className="w-full h-[500px] object-cover"
-                            />
-                            <div className="absolute -bottom-6 -left-6 w-48 h-48 border border-luxury-gold/30" />
+                            <div className="relative aspect-[4/3] lg:aspect-[16/10] overflow-hidden group">
+                                <img
+                                    src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+                                    alt="The intricate movement of a luxury mechanical watch"
+                                    className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-[2s] ease-out"
+                                />
+                                {/* Overlay styling */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/80 via-transparent to-transparent pointer-events-none" />
+                                <div className="absolute inset-x-0 bottom-0 p-8 flex justify-end pointer-events-none">
+                                    <div className="text-right">
+                                        <p className="text-luxury-gold text-[9px] uppercase tracking-[0.3em] mb-1">Precision</p>
+                                        <p className="text-white/60 font-serif text-sm">Hand-assembled calibres.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Decorative Gold Frame */}
+                            <div className="hidden lg:block absolute -inset-4 border border-luxury-gold/20 z-0 pointer-events-none" />
                         </motion.div>
                     </div>
                 </div>

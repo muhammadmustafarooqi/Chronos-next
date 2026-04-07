@@ -127,9 +127,13 @@ const Login = () => {
                                 <input type="checkbox" className="w-4 h-4 accent-luxury-gold" />
                                 <span className="text-sm text-gray-400">Remember me</span>
                             </label>
-                            <Link to="/forgot-password" className="text-sm text-luxury-gold hover:underline">
+                            <button
+                                type="button"
+                                onClick={() => alert('Password reset is coming soon. Please contact support.')}
+                                className="text-sm text-luxury-gold hover:underline"
+                            >
                                 Forgot password?
-                            </Link>
+                            </button>
                         </div>
 
                         <button

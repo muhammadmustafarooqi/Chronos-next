@@ -55,15 +55,18 @@ router.post('/register', validate(schemas.register), catchAsync(async (req, res)
 router.post('/login', validate(schemas.login), catchAsync(async (req, res) => {
     const { email, password } = req.body;
 
-    // Check for admin credentials (hardcoded as in original)
-    if (email === 'admin@gmail.com' && password === 'Admin123@') {
-        let admin = await User.findOne({ email: 'admin@gmail.com' });
+    // Check for admin credentials (loaded from environment variables)
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@chronos.com';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (adminPassword && email === adminEmail && password === adminPassword) {
+        let admin = await User.findOne({ email: adminEmail });
 
         if (!admin) {
             admin = await User.create({
                 name: 'System Admin',
-                email: 'admin@gmail.com',
-                password: password,
+                email: adminEmail,
+                password: adminPassword,
                 role: 'admin'
             });
         }
