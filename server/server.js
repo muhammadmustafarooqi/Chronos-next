@@ -22,12 +22,45 @@ import orderRoutes from './routes/orders.js';
 import customerRoutes from './routes/customers.js';
 import wishlistRoutes from './routes/wishlist.js';
 import adminRoutes from './routes/admin.js';
+import conciergeRoutes from './routes/concierge.js';
+import configurationsRoutes from './routes/configurations.js';
+import matchmakerRoutes from './routes/matchmaker.js';
+import vaultRoutes from './routes/vault.js';
+import giftsRoutes from './routes/gifts.js';
+import auctionRoutes from './routes/auctions.js';
+import rentalRoutes from './routes/rentals.js';
+import dropRoutes from './routes/drops.js';
+import warrantyRoutes from './routes/warranty.js';
+import listingRoutes from './routes/listings.js';
+import visualSearchRoutes from './routes/visualSearch.js';
+import analyticsRoutes from './routes/analytics.js';
+import pushRoutes from './routes/pushSubscriptions.js';
+
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { initAuctionSocket } from './socket/auctionSocket.js';
+import { startDropReleaser } from './jobs/dropReleaser.js';
+import scheduleSimulator from './jobs/orderSimulator.js';
 
 // Load environment variables
 dotenv.config();
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(async () => {
+    // Start background jobs after DB connects
+    startDropReleaser();
+    scheduleSimulator();
+
+    // Auto-seed if empty (for in-memory DB or fresh install)
+    const Product = (await import('./models/Product.js')).default;
+    const count = await Product.countDocuments();
+    if (count === 0) {
+        console.log('🌱 Database is empty. Running auto-seed...');
+        const { seedLogic } = await import('./scripts/seed-logic.js');
+        await seedLogic();
+    }
+});
+
 
 const app = express();
 
@@ -94,6 +127,19 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/concierge', conciergeRoutes);
+app.use('/api/configurations', configurationsRoutes);
+app.use('/api/matchmaker', matchmakerRoutes);
+app.use('/api/vault', vaultRoutes);
+app.use('/api/gifts', giftsRoutes);
+app.use('/api/auctions', auctionRoutes);
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/drops', dropRoutes);
+app.use('/api/warranty', warrantyRoutes);
+app.use('/api/listings', listingRoutes);
+app.use('/api/visual-search', visualSearchRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/push', pushRoutes);
 
 // ==============================================
 // UTILITY ENDPOINTS
@@ -152,7 +198,16 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://localhost:5174'],
+        methods: ['GET', 'POST']
+    }
+});
+initAuctionSocket(io);
+
+const server = httpServer.listen(PORT, () => {
     const divider = '═'.repeat(50);
     console.log(`
 ╔${divider}╗

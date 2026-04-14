@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; max-width: 600px; margin: 20px auto; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" bgcolor="#ffffff">
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="padding: 40px 20px; border-bottom: 2px solid #D4AF37;" bgcolor="#0a0a0a">
+                            <h1 style="color: #ffffff; font-family: 'Times New Roman', Times, serif; font-size: 28px; margin: 0; letter-spacing: 2px;">CHRONOS</h1>
+                            <p style="color: #D4AF37; margin: 5px 0 0 0; font-size: 12px; letter-spacing: 1px;">LUXURY TIMEPIECES</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- CONTENT -->
+                    <tr>
+                        <td style="padding: 40px 30px; color: #333333;" bgcolor="#ffffff">
+                            <h2 style="margin-top: 0; font-size: 22px; color: #111111;">Order Confirmed, {{customerName}}</h2>
+                            <p style="font-size: 16px; line-height: 1.6; color: #555555;">Thank you for choosing Chronos. Your order <strong>{{orderId}}</strong> has been received and is being carefully prepared.</p>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0; border-top: 1px solid #eeeeee; border-bottom: 1px solid #eeeeee;">
+                                <tr>
+                                    <td style="padding: 20px 0;">
+                                        <h3 style="margin-top: 0; font-size: 16px; color: #111111;">Order Summary</h3>
+                                        <p style="font-size: 14px; line-height: 1.6; color: #555555; margin: 0;">{{items}}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 20px 0; border-top: 1px solid #eeeeee;">
+                                        <p style="font-size: 14px; margin: 0; display: flex; justify-content: space-between;">
+                                            <strong>Total:</strong> <strong style="color: #D4AF37;">${{totalAmount}}</strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h3 style="font-size: 16px; color: #111111;">Shipping Address</h3>
+                            <p style="font-size: 14px; line-height: 1.6; color: #555555;">{{shippingAddress}}</p>
+
+                            <!-- IF GIFT -->
+                            <div style="margin-top: 30px;">
+                                <p style="font-size: 14px; color: #555555;">If this is a gift, you can share this special reveal link with the recipient:</p>
+                                <a href="{{giftRevealUrl}}" style="display: inline-block; padding: 12px 24px; background-color: #D4AF37; color: #0a0a0a; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px; font-size: 14px;">Gift Reveal Link</a>
+                            </div>
+
+                        </td>
+                    </tr>
+                    
+                    <!-- FOOTER -->
+                    <tr>
+                        <td align="center" style="padding: 30px; background-color: #f9f9f9; border-top: 1px solid #eeeeee;" bgcolor="#f9f9f9">
+                            <p style="font-size: 12px; color: #999999; margin: 0;">© 2026 Chronos Timepieces. All rights reserved.</p>
+                            <p style="font-size: 12px; margin: 10px 0 0 0;"><a href="#" style="color: #D4AF37; text-decoration: underline;">Unsubscribe</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,8 +1,19 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import Product from '../models/Product.js';
+import Auction from '../models/Auction.js';
+import Drop from '../models/Drop.js';
+import Warranty from '../models/Warranty.js';
+import User from '../models/User.js';
+import Order from '../models/Order.js';
+import Customer from '../models/Customer.js';
+import { calculateTier } from '../utils/vipUtils.js';
 
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Initial watch data
 const watches = [
@@ -19,7 +30,8 @@ const watches = [
         description: "A masterpiece of horology featuring a perpetual calendar complication housed within the iconic octagonal case.",
         features: ["Perpetual Calendar", "Moon Phase", "Ceramic Case", "41mm Diameter", "Self-Winding", "50m Water Resistant"],
         isNew: true,
-        isFeatured: true
+        isFeatured: true,
+        isRentable: true
     },
     {
         name: "Nautilus Travel Time",
@@ -33,7 +45,8 @@ const watches = [
         description: "The iconic Nautilus design with dual time zone functionality for the modern traveler.",
         features: ["Dual Time Zone", "Date Display", "Steel Case", "40.5mm Diameter", "Automatic Movement", "120m Water Resistant"],
         isNew: false,
-        isFeatured: true
+        isFeatured: true,
+        isRentable: true
     },
     {
         name: "Daytona Cosmograph",
@@ -47,7 +60,8 @@ const watches = [
         description: "The ultimate tool watch for those with a passion for driving and speed.",
         features: ["Chronograph", "Tachymetric Scale", "Oystersteel", "40mm Diameter", "Perpetual Movement", "100m Water Resistant"],
         isNew: false,
-        isFeatured: true
+        isFeatured: true,
+        isRentable: true
     },
     {
         name: "Speedmaster Moonwatch",
@@ -61,7 +75,8 @@ const watches = [
         description: "The watch that participated in all six lunar missions. An icon of space exploration.",
         features: ["Chronograph", "Manual Winding", "Hesalite Crystal", "42mm Diameter", "NASA Certified", "50m Water Resistant"],
         isNew: false,
-        isFeatured: false
+        isFeatured: false,
+        isRentable: true
     },
     {
         name: "Tank Louis",
@@ -75,7 +90,8 @@ const watches = [
         description: "A symbol of understated elegance since 1917. The rectangular case design that revolutionized watchmaking.",
         features: ["Quartz Movement", "18k Gold Case", "Leather Strap", "Small Model", "Sapphire Crystal", "30m Water Resistant"],
         isNew: false,
-        isFeatured: false
+        isFeatured: false,
+        isRentable: true
     },
     {
         name: "Submariner Date",
@@ -179,8 +195,19 @@ const watches = [
 
 const seedDB = async () => {
     try {
-        // Connect to MongoDB
-        await mongoose.connect(process.env.MONGODB_URI);
+        // Connect to MongoDB with in-memory fallback
+        let uri = process.env.MONGODB_URI;
+        
+        if (!uri || uri === 'memory://') {
+            console.log('🔄 Starting In-Memory MongoDB...');
+            const mongoServer = await MongoMemoryServer.create({
+                instance: { dbName: 'chronos' }
+            });
+            uri = mongoServer.getUri();
+            console.log(`✨ In-Memory MongoDB started`);
+        }
+        
+        await mongoose.connect(uri);
         console.log('✅ Connected to MongoDB');
 
         // Clear existing products
@@ -189,12 +216,150 @@ const seedDB = async () => {
 
         // Insert new products
         const insertedProducts = await Product.insertMany(watches);
-        console.log(`✅ Successfully inserted ${insertedProducts.length} watches`);
+        console.log('✅ Successfully inserted ' + insertedProducts.length + ' watches');
 
         // Log inserted products
         insertedProducts.forEach((p, i) => {
             console.log(`   ${i + 1}. ${p.name} - $${p.price.toLocaleString()}`);
         });
+
+        console.log('🔄 Seeding Phase 2 features...');
+
+        // 2. Auctions
+        await Auction.deleteMany({});
+        await Auction.insertMany([
+            {
+                product: insertedProducts[0]._id,
+                startingPrice: 100000,
+                currentPrice: 100000,
+                reservePrice: 120000,
+                startTime: new Date(Date.now() - 3600000), // 1 hour ago
+                endTime: new Date(Date.now() + 86400000), // tomorrow
+                status: 'live',
+                minimumVipTier: 'bronze',
+                bids: []
+            },
+            {
+                product: insertedProducts[1]._id,
+                startingPrice: 90000,
+                currentPrice: 90000,
+                startTime: new Date(Date.now() + 86400000),
+                endTime: new Date(Date.now() + 172800000),
+                status: 'upcoming',
+                minimumVipTier: 'silver'
+            },
+            {
+                product: insertedProducts[2]._id,
+                startingPrice: 20000,
+                currentPrice: 25000,
+                startTime: new Date(Date.now() - 172800000),
+                endTime: new Date(Date.now() - 86400000),
+                status: 'ended',
+                minimumVipTier: 'gold'
+            }
+        ]);
+        console.log('✅ Seeded 3 auctions (including 1 with minimumVipTier: bronze)');
+
+        // 3. Drops
+        await Drop.deleteMany({});
+        await Drop.insertMany([
+            {
+                product: insertedProducts[3]._id,
+                dropName: "Speedmaster Apollo Anniversary",
+                description: "Special numbered edition drop.",
+                releaseDate: new Date(Date.now() + 7 * 86400000),
+                goldPlusEarlyAccessHours: 48,
+                quantity: 50,
+                status: 'scheduled'
+            },
+            {
+                product: insertedProducts[4]._id,
+                dropName: "Cartier Platinum Special",
+                description: "Boutique exclusive platinum edition.",
+                releaseDate: new Date(Date.now() + 14 * 86400000),
+                goldPlusEarlyAccessHours: 24,
+                quantity: 20,
+                status: 'scheduled'
+            },
+            {
+                product: insertedProducts[5]._id,
+                dropName: "Submariner Heritage Release",
+                description: "Limited edition heritage collection.",
+                releaseDate: new Date(Date.now() + 21 * 86400000),
+                goldPlusEarlyAccessHours: 48,
+                quantity: 30,
+                status: 'scheduled'
+            }
+        ]);
+        console.log('✅ Seeded 3 drops with future release dates');
+
+        // 4. Admin User and Customer with Platinum VIP Tier
+        // Customize these credentials in server/.env if needed
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@chronos.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123@';
+        
+        await User.deleteMany({ email: adminEmail });
+        await Customer.deleteMany({ email: adminEmail });
+        
+        const adminUser = await User.create({
+            name: 'Admin User',
+            email: adminEmail,
+            password: adminPassword,
+            role: 'admin'
+        });
+        
+        // Create admin customer record with platinum VIP tier (totalSpend >= 20000)
+        await Customer.create({
+            user: adminUser._id,
+            name: 'Admin User',
+            email: adminEmail,
+            phone: '555-0000',
+            totalOrders: 5,
+            totalSpend: 25000,
+            vipTier: calculateTier(25000),
+            status: 'VIP',
+            lastOrderDate: new Date()
+        });
+        console.log(`✅ Created admin user (${adminEmail}) with Platinum VIP tier`);
+        console.log(`   📌 Change password immediately after first login for security!`);
+        
+        // 5. Seed user (for warranty/order testing)
+        await User.deleteMany({ email: 'seed@chronos.com' });
+        await Customer.deleteMany({ email: 'seed@chronos.com' });
+        await Order.deleteMany({ email: 'seed@chronos.com' });
+        await Warranty.deleteMany({ email: 'seed@chronos.com' });
+        
+        const dummyUser = await User.create({
+            name: 'Seed User',
+            email: 'seed@chronos.com',
+            password: 'password123',
+            role: 'user'
+        });
+        
+        const dummyOrder = await Order.create({
+            user: dummyUser._id,
+            customerName: dummyUser.name,
+            email: dummyUser.email,
+            items: [
+                { product: insertedProducts[5]._id, name: insertedProducts[5].name, price: insertedProducts[5].price, quantity: 1 }
+            ],
+            totalAmount: insertedProducts[5].price,
+            status: 'Delivered',
+            shippingAddress: { street: '123 Seed Ave', city: 'Mock City', state: 'NY', zipCode: '10001' }
+        });
+        
+        await Warranty.create({
+            order: dummyOrder._id,
+            product: insertedProducts[5]._id,
+            email: dummyUser.email,
+            serialNumber: `CHR-${new Date().getFullYear()}-SEED01`,
+            purchaseDate: new Date(),
+            warrantyExpiryDate: new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000),
+            movementType: 'automatic',
+            serviceIntervalYears: 3,
+            nextServiceDueDate: new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000)
+        });
+        console.log('✅ Seeded seed user, order, and warranty record');
 
         console.log('\n🎉 Database seeding completed!');
         process.exit(0);

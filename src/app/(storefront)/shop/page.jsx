@@ -1,15 +1,15 @@
 "use client";
-import React, { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useWatches } from '@/context/WatchContext';
 import ProductCard from '@/components/ProductCard';
 import CompareDrawer, { CompareModal } from '@/components/CompareDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, Grid, LayoutGrid, Sparkles, GitCompare } from 'lucide-react';
 
-const Shop = () => {
+const ShopContent = () => {
     const { watches, getCategories, getBrands } = useWatches();
-    const [searchParams] = useSearchParams();
+    const searchParams = useSearchParams();
     const categoryParam = searchParams.get('category');
     const brandParam = searchParams.get('brand');
     const searchParam = searchParams.get('search') || '';
@@ -372,5 +372,11 @@ const Shop = () => {
     );
 };
 
-export default Shop;
+export default function Shop() {
+    return (
+        <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
+            <ShopContent />
+        </Suspense>
+    );
+}
 

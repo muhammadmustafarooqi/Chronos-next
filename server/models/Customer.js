@@ -41,6 +41,12 @@ const customerSchema = new mongoose.Schema({
     notes: {
         type: String,
         default: ''
+    },
+    // Feature 6: VIP Tier
+    vipTier: {
+        type: String,
+        enum: ['bronze', 'silver', 'gold', 'platinum'],
+        default: 'bronze'
     }
 }, {
     timestamps: true

@@ -7,10 +7,16 @@ import { motion } from 'framer-motion';
  * This is a unique, eye-catching centerpiece for the Home page.
  */
 const LiveWatchFace = ({ size = 300, className = '' }) => {
-    const [time, setTime] = useState(new Date());
+    const [time, setTime] = useState(null);
+    const [isClient, setIsClient] = useState(false);
     const animFrameRef = useRef(null);
 
+    // Round floating-point values to prevent hydration mismatch
+    const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+
     useEffect(() => {
+        setIsClient(true);
+        setTime(new Date());
         const tick = () => {
             setTime(new Date());
             animFrameRef.current = requestAnimationFrame(tick);
@@ -19,9 +25,9 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
         return () => cancelAnimationFrame(animFrameRef.current);
     }, []);
 
-    const seconds = time.getSeconds() + time.getMilliseconds() / 1000;
-    const minutes = time.getMinutes() + seconds / 60;
-    const hours = (time.getHours() % 12) + minutes / 60;
+    const seconds = time ? time.getSeconds() + time.getMilliseconds() / 1000 : 0;
+    const minutes = time ? time.getMinutes() + seconds / 60 : 0;
+    const hours = time ? (time.getHours() % 12) + minutes / 60 : 0;
 
     const secAngle = seconds * 6;
     const minAngle = minutes * 6;
@@ -39,10 +45,10 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
         const outerR = r - 10;
         const innerR = isMain ? r - 26 : r - 18;
         return {
-            x1: cx + outerR * Math.cos(rad),
-            y1: cy + outerR * Math.sin(rad),
-            x2: cx + innerR * Math.cos(rad),
-            y2: cy + innerR * Math.sin(rad),
+            x1: round(cx + outerR * Math.cos(rad)),
+            y1: round(cy + outerR * Math.sin(rad)),
+            x2: round(cx + innerR * Math.cos(rad)),
+            y2: round(cy + innerR * Math.sin(rad)),
             isMain
         };
     });
@@ -88,7 +94,7 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
                 }}
             />
 
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} suppressHydrationWarning>
                 <defs>
                     <radialGradient id="watchFace" cx="50%" cy="40%" r="60%">
                         <stop offset="0%" stopColor="#1e1e1e" />
@@ -130,7 +136,7 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
                 <ellipse cx={cx - 10} cy={cy - 15} rx={r * 0.55} ry={r * 0.4} fill="url(#crystalSheen)" />
 
                 {/* Hour markers */}
-                {hourMarkers.map((m, i) => (
+                {isClient && hourMarkers.map((m, i) => (
                     <line
                         key={`hm-${i}`}
                         x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2}
@@ -141,7 +147,7 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
                 ))}
 
                 {/* Minute markers */}
-                {minuteMarkers.map((m, i) => (
+                {isClient && minuteMarkers.map((m, i) => (
                     <line
                         key={`mm-${i}`}
                         x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2}
@@ -174,33 +180,34 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
                     SWISS MADE
                 </text>
 
+
                 {/* Hour hand */}
-                <polygon
+                {isClient && <polygon
                     points={handPoint(hourAngle, r * 0.48, 4.5)}
                     fill="#e8e8e8"
                     stroke="#ccc"
                     strokeWidth="0.5"
                     filter="url(#glow)"
-                />
+                />}
 
                 {/* Minute hand */}
-                <polygon
+                {isClient && <polygon
                     points={handPoint(minAngle, r * 0.65, 3)}
                     fill="#f0f0f0"
                     stroke="#ddd"
                     strokeWidth="0.5"
                     filter="url(#glow)"
-                />
+                />}
 
                 {/* Second hand */}
-                <line
+                {isClient && <line
                     x1={secTail.x} y1={secTail.y}
                     x2={secTip.x} y2={secTip.y}
                     stroke="#D4AF37"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     filter="url(#secGlow)"
-                />
+                />}
 
                 {/* Center cap */}
                 <circle cx={cx} cy={cy} r={5} fill="#D4AF37" />

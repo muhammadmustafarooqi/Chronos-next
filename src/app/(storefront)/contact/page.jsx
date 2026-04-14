@@ -42,7 +42,7 @@ const Contact = () => {
         {
             icon: Mail,
             title: 'Email Us',
-            lines: ['concierge@chronos.com', 'support@chronos.com'],
+            lines: ['concierge@yourstore.com', 'support@yourstore.com'],
         },
         {
             icon: Clock,

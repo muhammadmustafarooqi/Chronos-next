@@ -120,8 +120,8 @@ Server will run on `http://localhost:5000`
 ## Admin Credentials
 
 ```
-Email: admin@gmail.com
-Password: Admin123@
+Email: admin@yourstore.com (created after running `npm run seed`)
+Password: (set during seed script - see SETUP.md)
 ```
 
 ## Running with Frontend

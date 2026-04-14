@@ -44,6 +44,22 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 1,
         min: 0
+    },
+    marketValue: {
+        type: Number,
+        default: null
+    },
+    isRentable: {
+        type: Boolean,
+        default: false
+    },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
+    arTryOnCount: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true,

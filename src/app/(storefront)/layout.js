@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import WatchMatchmaker from '@/components/WatchMatchmaker';
 import CompareDrawer from '@/components/CompareDrawer';
+import WatchConcierge from '@/components/WatchConcierge';
 
 export default function StorefrontLayout({ children }) {
     return (
@@ -15,7 +16,9 @@ export default function StorefrontLayout({ children }) {
             <Footer />
             <CartDrawer />
             <WatchMatchmaker />
+            <WatchConcierge />
         </div>
     );
 }
+
 

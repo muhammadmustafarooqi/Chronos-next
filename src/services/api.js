@@ -9,13 +9,22 @@ const getAuthToken = () => {
 
 // Helper to handle API responses
 const handleResponse = async (response) => {
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.message || 'An error occurred');
+    if (!response) {
+        throw new Error('No response from server. Is the backend running on http://localhost:5000?');
     }
 
-    return data;
+    try {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || `HTTP ${response.status}: An error occurred`);
+        }
+        return data;
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            throw new Error('Invalid JSON response from server');
+        }
+        throw error;
+    }
 };
 
 // API Service
@@ -63,19 +72,43 @@ const api = {
     // ============ PRODUCTS ============
     products: {
         getAll: async (params = {}) => {
-            const queryString = new URLSearchParams(params).toString();
-            const response = await fetch(`${API_BASE_URL}/products?${queryString}`);
-            return handleResponse(response);
+            try {
+                const queryString = new URLSearchParams(params).toString();
+                const response = await fetch(`${API_BASE_URL}/products?${queryString}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Failed to fetch products:', error);
+                throw new Error(`Products API Error: ${error.message}`);
+            }
         },
 
         getById: async (id) => {
-            const response = await fetch(`${API_BASE_URL}/products/${id}`);
-            return handleResponse(response);
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error(`Failed to fetch product ${id}:`, error);
+                throw new Error(`Product API Error: ${error.message}`);
+            }
         },
 
         getFeatured: async () => {
-            const response = await fetch(`${API_BASE_URL}/products/featured`);
-            return handleResponse(response);
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/featured`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Failed to fetch featured products:', error);
+                throw error;
+            }
         },
 
         getNewArrivals: async () => {
@@ -274,8 +307,94 @@ const api = {
                 body: JSON.stringify({ watches })
             });
             return handleResponse(response);
+        },
+
+        // Feature 7: Push delivery timeline stage
+        pushTimeline: async (orderId, stage, note = '') => {
+            const response = await fetch(`${API_BASE_URL}/orders/${orderId}/timeline`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': getAuthToken()
+                },
+                body: JSON.stringify({ stage, note })
+            });
+            return handleResponse(response);
+        }
+    },
+
+    // ============ CONCIERGE (Feature 1) ============
+    concierge: {
+        chat: async (message, history = []) => {
+            const response = await fetch(`${API_BASE_URL}/concierge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, history })
+            });
+            return handleResponse(response);
+        },
+        requestCallback: async (note = '') => {
+            const response = await fetch(`${API_BASE_URL}/concierge/callback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': getAuthToken()
+                },
+                body: JSON.stringify({ note })
+            });
+            return handleResponse(response);
+        }
+    },
+
+    // ============ CONFIGURATIONS (Feature 3) ============
+    configurations: {
+        get: async (id) => {
+            const response = await fetch(`${API_BASE_URL}/configurations/${id}`);
+            return handleResponse(response);
+        },
+        save: async (data) => {
+            const response = await fetch(`${API_BASE_URL}/configurations`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': getAuthToken()
+                },
+                body: JSON.stringify(data)
+            });
+            return handleResponse(response);
+        }
+    },
+
+    // ============ MATCHMAKER (Feature 4) ============
+    matchmaker: {
+        submit: async (answers, brands = []) => {
+            const response = await fetch(`${API_BASE_URL}/matchmaker`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers, brands })
+            });
+            return handleResponse(response);
+        }
+    },
+
+    // ============ VAULT (Feature 5) ============
+    vault: {
+        get: async (customerId) => {
+            const response = await fetch(`${API_BASE_URL}/vault/${encodeURIComponent(customerId)}`, {
+                headers: { 'Authorization': getAuthToken() }
+            });
+            return handleResponse(response);
+        }
+    },
+
+    // ============ GIFTS (Feature 8) ============
+    gifts: {
+        get: async (token) => {
+            const response = await fetch(`${API_BASE_URL}/gifts/${token}`);
+            return handleResponse(response);
         }
     }
 };
 
 export default api;
+

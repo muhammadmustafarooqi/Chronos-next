@@ -116,13 +116,35 @@ router.get('/brands', cacheMiddleware(CACHE_KEYS.BRANDS, 600), catchAsync(async 
 // @desc    Get single product
 // @access  Public
 router.get('/:id', catchAsync(async (req, res) => {
-    const product = await Product.findById(req.params.id).lean();
+    // Feature 8: Increment view count
+    const product = await Product.findByIdAndUpdate(
+        req.params.id, 
+        { $inc: { viewCount: 1 } },
+        { new: true }
+    );
 
     if (!product) {
-        return res.api.notFound('Product not found. It may have been discontinued.');
+        return res.api.notFound('Watch not found');
     }
 
     return res.api.success({ product });
+}));
+
+// @route   POST /api/products/:id/ar-view
+// @desc    Increment AR try-on count
+// @access  Public
+router.post('/:id/ar-view', catchAsync(async (req, res) => {
+    const product = await Product.findByIdAndUpdate(
+        req.params.id,
+        { $inc: { arTryOnCount: 1 } },
+        { new: true }
+    );
+    
+    if (!product) {
+        return res.api.notFound();
+    }
+    
+    return res.api.success(null, 'AR session logged');
 }));
 
 // @route   POST /api/products

@@ -84,7 +84,18 @@ const orderSchema = new mongoose.Schema({
     notes: {
         type: String,
         default: ''
-    }
+    },
+    // Feature 7: White-Glove Delivery Tracking
+    deliveryTimeline: [{
+        stage: { type: String, required: true },
+        timestamp: { type: Date, default: Date.now },
+        note: { type: String, default: '' }
+    }],
+    // Feature 8: Virtual Gifting Suite
+    isGift: { type: Boolean, default: false },
+    giftMessage: { type: String, default: '' },
+    giftWrap: { type: Boolean, default: false },
+    giftRevealToken: { type: String, default: null }
 }, {
     timestamps: true
 });

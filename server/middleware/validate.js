@@ -78,7 +78,7 @@ export const schemas = {
     register: {
         name: { required: true, label: 'Name', minLength: 2, maxLength: 100 },
         email: { required: true, type: 'email', label: 'Email' },
-        password: { required: true, label: 'Password', minLength: 6 }
+        password: { required: true, label: 'Password', minLength: 8 }
     },
     login: {
         email: { required: true, type: 'email', label: 'Email' },

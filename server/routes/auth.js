@@ -4,6 +4,8 @@ import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
 import validate, { schemas } from '../middleware/validate.js';
 import catchAsync from '../utils/catchAsync.js';
+import { sendEmail } from '../utils/emailService.js';
+import crypto from 'crypto';
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ router.post('/register', validate(schemas.register), catchAsync(async (req, res)
     // Check if user exists
     const userExists = await User.findOne({ email: email.toLowerCase() });
     if (userExists) {
-        return res.api.error('This email is already registered. Please login.', 400);
+        return res.api.error('This email is already registered. Please login.', 409);
     }
 
     // Create user
@@ -161,6 +163,63 @@ router.put('/update', protect, catchAsync(async (req, res) => {
             isAdmin: user.role === 'admin'
         }
     }, 'Your profile has been updated successfully.');
+}));
+
+// @route   POST /api/auth/forgot-password
+// @desc    Generate password reset token
+// @access  Public
+router.post('/forgot-password', catchAsync(async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.api.error('Email is required', 400);
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+        // Return success even if not found for security
+        return res.api.success(null, 'If an account with that email exists, we sent a password reset link.');
+    }
+
+    // Since User model does not currently have resetPasswordToken/Expires,
+    // let's create a temporary stateless JWT for reset.
+    const resetToken = jwt.sign({ id: user._id, intent: 'reset' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    
+    // In a real DB we'd store it. Here we use the stateless JWT approach.
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    await sendEmail({
+        to: user.email,
+        subject: 'Chronos - Password Reset Request',
+        template: 'passwordReset.html',
+        variables: {
+            resetUrl
+        }
+    });
+
+    return res.api.success(null, 'If an account with that email exists, we sent a password reset link.');
+}));
+
+// @route   POST /api/auth/reset-password/:token
+// @desc    Reset password using token
+// @access  Public
+router.post('/reset-password/:token', catchAsync(async (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.api.error('New password is required', 400);
+
+    try {
+        const decoded = jwt.verify(req.params.token, process.env.JWT_SECRET);
+        if (decoded.intent !== 'reset') {
+            return res.api.error('Invalid token', 400);
+        }
+
+        const user = await User.findById(decoded.id);
+        if (!user) return res.api.error('User not found', 404);
+
+        user.password = password;
+        await user.save();
+
+        return res.api.success(null, 'Your password has been reset successfully. You can now login.');
+    } catch (error) {
+        return res.api.error('Token is invalid or has expired', 400);
+    }
 }));
 
 export default router;
