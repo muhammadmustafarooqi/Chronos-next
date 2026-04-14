@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Gem, Award, Clock, Headphones, ShieldCheck, Package } from 'lucide-react';
@@ -317,3 +318,4 @@ const WhyChooseUs = () => {
 };
 
 export default WhyChooseUs;
+

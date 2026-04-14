@@ -1,12 +1,14 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, Search, Heart, User, Sun, Moon, Crown } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { useVIP } from '../context/VIPContext';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { useVIP } from '@/context/VIPContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 const Navbar = () => {
     const { setIsCartOpen, cartCount } = useCart();
@@ -18,20 +20,22 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const location = useLocation();
-    const navigate = useNavigate();
+    const [mounted, setMounted] = useState(false);
+    const pathname = usePathname();
+    const router = useRouter();
 
     useEffect(() => {
+        setMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
         };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        typeof window !== 'undefined' && window.addEventListener('scroll', handleScroll);
+        return () => typeof window !== 'undefined' && window.removeEventListener('scroll', handleScroll);
     }, []);
 
     useEffect(() => {
         setIsMobileMenuOpen(false);
-    }, [location]);
+    }, [pathname]);
 
     const navLinks = [
         { path: '/', label: 'Home' },
@@ -56,7 +60,7 @@ const Navbar = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         {/* Logo */}
-                        <Link to="/" className="relative group">
+                        <Link href="/" className="relative group">
                             <span className="text-2xl md:text-3xl font-serif font-bold tracking-wider">
                                 <span className="text-gradient-gold">CHRONOS</span>
                             </span>
@@ -66,10 +70,10 @@ const Navbar = () => {
                         {/* Desktop Navigation */}
                         <div className="hidden lg:flex items-center space-x-10">
                             {navLinks.map((link) => (
-                                <Link
+                                <Link 
                                     key={link.path}
-                                    to={link.path}
-                                    className={`relative text-sm uppercase tracking-[0.15em] font-medium transition-colors hover-underline ${location.pathname === link.path
+                                    href={link.path}
+                                    className={`relative text-sm uppercase tracking-[0.15em] font-medium transition-colors hover-underline ${pathname === link.path
                                         ? 'text-luxury-gold'
                                         : 'text-white/80 hover:text-white'
                                         }`}
@@ -88,15 +92,17 @@ const Navbar = () => {
                                 aria-label="Toggle theme"
                             >
                                 <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={isDark ? 'dark' : 'light'}
-                                        initial={{ rotate: -90, opacity: 0 }}
-                                        animate={{ rotate: 0, opacity: 1 }}
-                                        exit={{ rotate: 90, opacity: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                    >
-                                        {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                                    </motion.div>
+                                    {mounted && (
+                                        <motion.div
+                                            key={isDark ? 'dark' : 'light'}
+                                            initial={{ rotate: -90, opacity: 0 }}
+                                            animate={{ rotate: 0, opacity: 1 }}
+                                            exit={{ rotate: 90, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                                        </motion.div>
+                                    )}
                                 </AnimatePresence>
                             </button>
 
@@ -109,8 +115,8 @@ const Navbar = () => {
                             </button>
 
                             {/* Wishlist */}
-                            <Link
-                                to="/wishlist"
+                            <Link 
+                                href="/wishlist"
                                 className="hidden md:flex p-2 text-white/80 hover:text-luxury-gold transition-colors relative"
                             >
                                 <Heart size={20} />
@@ -129,8 +135,8 @@ const Navbar = () => {
                             </Link>
 
                             {/* Account */}
-                            <Link
-                                to={isAuthenticated ? "/account" : "/login"}
+                            <Link 
+                                href={isAuthenticated ? "/account" : "/login"}
                                 className="hidden md:flex items-center gap-1.5 p-2 text-white/80 hover:text-luxury-gold transition-colors relative group"
                             >
                                 <User size={20} />
@@ -215,9 +221,9 @@ const Navbar = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.1 }}
                                     >
-                                        <Link
-                                            to={link.path}
-                                            className={`text-2xl font-serif tracking-wider ${location.pathname === link.path
+                                        <Link 
+                                            href={link.path}
+                                            className={`text-2xl font-serif tracking-wider ${pathname === link.path
                                                 ? 'text-luxury-gold'
                                                 : 'text-white hover:text-luxury-gold'
                                                 } transition-colors`}
@@ -238,12 +244,12 @@ const Navbar = () => {
                                     onClick={toggleTheme}
                                     className="text-white/60 hover:text-luxury-gold transition-colors"
                                 >
-                                    {isDark ? <Sun size={24} /> : <Moon size={24} />}
+                                    {mounted && (isDark ? <Sun size={24} /> : <Moon size={24} />)}
                                 </button>
-                                <Link to="/wishlist" className="text-white/60 hover:text-luxury-gold transition-colors">
+                                <Link href="/wishlist" className="text-white/60 hover:text-luxury-gold transition-colors">
                                     <Heart size={24} />
                                 </Link>
-                                <Link to={isAuthenticated ? "/account" : "/login"} className="text-white/60 hover:text-luxury-gold transition-colors">
+                                <Link href={isAuthenticated ? "/account" : "/login"} className="text-white/60 hover:text-luxury-gold transition-colors">
                                     <User size={24} />
                                 </Link>
                             </motion.div>
@@ -281,7 +287,7 @@ const Navbar = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && searchQuery.trim()) {
-                                            navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                                            router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
                                             setIsSearchOpen(false);
                                             setSearchQuery('');
                                         }

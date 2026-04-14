@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
 
@@ -9,7 +10,7 @@ export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState(() => {
         // Load cart from localStorage
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('chronos-cart');
+            const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-cart') : null);
             return saved ? JSON.parse(saved) : [];
         }
         return [];
@@ -79,3 +80,4 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
+

@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api from '@/services/api';
 import { useAuth } from './AuthContext';
 
 const WishlistContext = createContext();
@@ -10,7 +11,7 @@ export const WishlistProvider = ({ children }) => {
     const [wishlist, setWishlist] = useState(() => {
         // Initialize from localStorage
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('chronos-wishlist');
+            const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-wishlist') : null);
             return saved ? JSON.parse(saved) : [];
         }
         return [];
@@ -110,3 +111,4 @@ export const WishlistProvider = ({ children }) => {
         </WishlistContext.Provider>
     );
 };
+

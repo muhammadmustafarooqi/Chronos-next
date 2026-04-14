@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api from '@/services/api';
 
 const AuthContext = createContext();
 
@@ -8,12 +9,12 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(() => localStorage.getItem('chronos-token'));
+    const [token, setToken] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('chronos-token') : null));
 
     // Check if user is logged in on mount
     useEffect(() => {
         const initAuth = async () => {
-            const savedToken = localStorage.getItem('chronos-token');
+            const savedToken = (typeof window !== 'undefined' ? localStorage.getItem('chronos-token') : null);
             if (savedToken) {
                 try {
                     const response = await api.auth.getMe();
@@ -90,3 +91,4 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+

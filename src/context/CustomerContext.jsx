@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api from '@/services/api';
 import { useAuth } from './AuthContext';
 
 const CustomerContext = createContext();
@@ -26,7 +27,7 @@ export const CustomerProvider = ({ children }) => {
                 } catch (error) {
                     console.error('Error fetching customers:', error);
                     // Fallback to localStorage
-                    const saved = localStorage.getItem('chronos-customers');
+                    const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-customers') : null);
                     if (saved) {
                         setCustomers(JSON.parse(saved));
                     }
@@ -51,8 +52,8 @@ export const CustomerProvider = ({ children }) => {
             }
         };
 
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        typeof window !== 'undefined' && window.addEventListener('storage', handleStorageChange);
+        return () => typeof window !== 'undefined' && window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     const updateCustomerStatus = async (customerId, newStatus) => {
@@ -137,3 +138,4 @@ export const CustomerProvider = ({ children }) => {
         </CustomerContext.Provider>
     );
 };
+

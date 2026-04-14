@@ -1,24 +1,27 @@
+"use client";
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ChevronDown, Play } from 'lucide-react';
 
 const Hero = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const handleMouseMove = (e) => {
             setMousePosition({
-                x: (e.clientX / window.innerWidth - 0.5) * 20,
-                y: (e.clientY / window.innerHeight - 0.5) * 20,
+                x: (e.clientX / (typeof window !== 'undefined' ? window.innerWidth : 1000) - 0.5) * 20,
+                y: (e.clientY / (typeof window !== 'undefined' ? window.innerHeight : 800) - 0.5) * 20,
             });
         };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        typeof window !== 'undefined' && window.addEventListener('mousemove', handleMouseMove);
+        return () => typeof window !== 'undefined' && window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
     const scrollToContent = () => {
-        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+        window.scrollTo({ top: (typeof window !== 'undefined' ? window.innerHeight : 800), behavior: 'smooth' });
     };
 
     return (
@@ -53,13 +56,13 @@ const Hero = () => {
 
             {/* Floating Particles */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+                {mounted && [...Array(20)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-1 h-1 bg-luxury-gold/40 rounded-full"
                         initial={{
-                            x: Math.random() * window.innerWidth,
-                            y: window.innerHeight + 10,
+                            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                            y: (typeof window !== 'undefined' ? window.innerHeight : 800) + 10,
                             opacity: 0,
                         }}
                         animate={{
@@ -135,7 +138,7 @@ const Hero = () => {
                     transition={{ duration: 0.8, delay: 1.1 }}
                     className="flex flex-col sm:flex-row gap-4 justify-center items-center"
                 >
-                    <Link to="/shop" className="btn-primary min-w-[200px]">
+                    <Link href="/shop" className="btn-primary min-w-[200px]">
                         Explore Collection
                     </Link>
                     <button className="btn-outline min-w-[200px] flex items-center justify-center gap-3">

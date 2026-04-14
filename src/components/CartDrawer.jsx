@@ -1,8 +1,9 @@
+"use client";
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 const CartDrawer = () => {
     const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
@@ -56,7 +57,7 @@ const CartDrawer = () => {
                                         onClick={() => setIsCartOpen(false)}
                                         className="btn-outline text-sm"
                                     >
-                                        <Link to="/shop" className="flex items-center gap-2">
+                                        <Link href="/shop" className="flex items-center gap-2">
                                             Continue Shopping <ArrowRight size={14} />
                                         </Link>
                                     </button>
@@ -147,8 +148,8 @@ const CartDrawer = () => {
                                     </div>
                                 </div>
 
-                                <Link
-                                    to="/checkout"
+                                <Link 
+                                    href="/checkout"
                                     onClick={() => setIsCartOpen(false)}
                                     className="btn-primary w-full text-center block mb-3"
                                 >
@@ -170,3 +171,5 @@ const CartDrawer = () => {
 };
 
 export default CartDrawer;
+
+

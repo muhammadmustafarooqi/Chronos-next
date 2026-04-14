@@ -1,7 +1,8 @@
+"use client";
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useWatches } from '../context/WatchContext';
+import { useWatches } from '@/context/WatchContext';
 import { ArrowRight, Star } from 'lucide-react';
 
 const FeaturedProducts = () => {
@@ -41,8 +42,8 @@ const FeaturedProducts = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        <Link
-                            to="/shop"
+                        <Link 
+                            href="/shop"
                             className="group flex items-center gap-3 text-white hover:text-luxury-gold transition-colors"
                         >
                             <span className="uppercase text-sm tracking-[0.2em] font-medium">
@@ -83,8 +84,8 @@ const FeaturedProducts = () => {
 
                                     {/* View Button */}
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        <Link
-                                            to={`/product/${watch.id}`}
+                                        <Link 
+                                            href={`/product/${watch.id}`}
                                             className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
                                         >
                                             Discover
@@ -126,7 +127,7 @@ const FeaturedProducts = () => {
                     viewport={{ once: true }}
                     className="mt-12 text-center md:hidden"
                 >
-                    <Link to="/shop" className="btn-outline inline-flex items-center gap-3">
+                    <Link href="/shop" className="btn-outline inline-flex items-center gap-3">
                         View All Collection <ArrowRight size={16} />
                     </Link>
                 </motion.div>
@@ -136,3 +137,5 @@ const FeaturedProducts = () => {
 };
 
 export default FeaturedProducts;
+
+

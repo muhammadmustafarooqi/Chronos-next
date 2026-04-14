@@ -1,6 +1,7 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
-import { watches as initialWatches } from '../data/watches';
+import api from '@/services/api';
+import { watches as initialWatches } from '@/data/watches';
 
 const WatchContext = createContext();
 
@@ -133,3 +134,4 @@ export const WatchProvider = ({ children }) => {
         </WatchContext.Provider>
     );
 };
+

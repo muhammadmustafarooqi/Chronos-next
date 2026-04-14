@@ -1,7 +1,8 @@
+"use client";
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useWatches } from '../context/WatchContext';
+import { useWatches } from '@/context/WatchContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 const NewArrivals = () => {
@@ -31,8 +32,8 @@ const NewArrivals = () => {
                             New Arrivals
                         </h2>
                     </div>
-                    <Link
-                        to="/shop"
+                    <Link 
+                        href="/shop"
                         className="group flex items-center gap-3 text-white hover:text-luxury-gold transition-colors"
                     >
                         <span className="uppercase text-sm tracking-[0.2em] font-medium">
@@ -53,7 +54,7 @@ const NewArrivals = () => {
                             transition={{ delay: index * 0.1 }}
                             className="flex-shrink-0 w-[300px] md:w-[350px] snap-center group"
                         >
-                            <Link to={`/product/${watch.id}`}>
+                            <Link href={`/product/${watch.id}`}>
                                 <div className="relative overflow-hidden aspect-[4/5] mb-4">
                                     <img
                                         src={watch.images ? watch.images[0] : watch.image}
@@ -96,3 +97,5 @@ const NewArrivals = () => {
 };
 
 export default NewArrivals;
+
+

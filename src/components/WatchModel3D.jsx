@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Float, PresentationControls } from '@react-three/drei';
@@ -306,3 +307,4 @@ const WatchModel3D = ({ product, className = "" }) => {
 };
 
 export default WatchModel3D;
+

@@ -1,10 +1,11 @@
+"use client";
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { user, isAuthenticated, loading } = useAuth();
-    const location = useLocation();
+    const location = usePathname();
 
     // Wait for auth initialization before making redirect decisions
     if (loading) {
@@ -27,3 +28,5 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 };
 
 export default ProtectedRoute;
+
+

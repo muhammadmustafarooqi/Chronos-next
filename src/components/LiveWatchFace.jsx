@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
@@ -216,3 +217,4 @@ const LiveWatchFace = ({ size = 300, className = '' }) => {
 };
 
 export default LiveWatchFace;
+

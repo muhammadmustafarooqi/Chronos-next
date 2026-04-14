@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 
@@ -80,7 +81,7 @@ export const VIPProvider = ({ children }) => {
     useEffect(() => {
         if (storageKey === null) return; // auth still loading
         try {
-            const saved = localStorage.getItem(storageKey);
+            const saved = (typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null);
             setVipData(
                 saved
                     ? JSON.parse(saved)
@@ -152,3 +153,4 @@ export const VIPProvider = ({ children }) => {
         </VIPContext.Provider>
     );
 };
+

@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const RecentlyViewedContext = createContext();
@@ -7,7 +8,7 @@ export const useRecentlyViewed = () => useContext(RecentlyViewedContext);
 export const RecentlyViewedProvider = ({ children }) => {
     const [recentlyViewed, setRecentlyViewed] = useState(() => {
         try {
-            const saved = localStorage.getItem('chronos-recently-viewed');
+            const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-recently-viewed') : null);
             return saved ? JSON.parse(saved) : [];
         } catch {
             return [];
@@ -37,3 +38,4 @@ export const RecentlyViewedProvider = ({ children }) => {
         </RecentlyViewedContext.Provider>
     );
 };
+

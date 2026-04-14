@@ -1,7 +1,8 @@
+"use client";
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Instagram, Facebook, Twitter, Youtube, MapPin, Phone, Mail, ArrowRight, Clock, CreditCard, Truck, Shield } from 'lucide-react';
+import { Camera as Instagram, Users as Facebook, Link2 as Twitter, Video as Youtube, MapPin, Phone, Mail, ArrowRight, Clock, CreditCard, Truck, Shield } from 'lucide-react';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -80,7 +81,7 @@ const Footer = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                         {/* Brand Column */}
                         <div className="lg:col-span-2">
-                            <Link to="/" className="inline-block mb-6">
+                            <Link href="/" className="inline-block mb-6">
                                 <span className="text-3xl font-serif font-bold text-gradient-gold">CHRONOS</span>
                             </Link>
                             <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
@@ -106,8 +107,8 @@ const Footer = () => {
                             <ul className="space-y-4">
                                 {['New Arrivals', 'Luxury', 'Sport', 'Classic', 'Limited Edition'].map((item) => (
                                     <li key={item}>
-                                        <Link
-                                            to="/shop"
+                                        <Link 
+                                            href="/shop"
                                             className="text-gray-400 hover:text-luxury-gold text-sm transition-colors flex items-center gap-2 group"
                                         >
                                             <ArrowRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
@@ -130,8 +131,8 @@ const Footer = () => {
                                     { label: 'Press', path: '/press' },
                                 ].map((item) => (
                                     <li key={item.label}>
-                                        <Link
-                                            to={item.path}
+                                        <Link 
+                                            href={item.path}
                                             className="text-gray-400 hover:text-luxury-gold text-sm transition-colors flex items-center gap-2 group"
                                         >
                                             <ArrowRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
@@ -179,9 +180,9 @@ const Footer = () => {
                         </p>
                         <div className="flex gap-6">
                             {['Privacy Policy', 'Terms of Service', 'Cookies'].map((item) => (
-                                <Link
+                                <Link 
                                     key={item}
-                                    to="/"
+                                    href="/"
                                     className="text-gray-500 hover:text-gray-300 text-xs transition-colors"
                                 >
                                     {item}
@@ -200,3 +201,5 @@ const Footer = () => {
 };
 
 export default Footer;
+
+

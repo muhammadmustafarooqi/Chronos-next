@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, PenTool, Check, Info } from 'lucide-react';
@@ -184,3 +185,4 @@ const EngravingModal = ({ isOpen, onClose, onSave }) => {
 };
 
 export default EngravingModal;
+

@@ -1,9 +1,10 @@
+"use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Gem, Star, Zap, Shield, ChevronRight, Sparkles, Check } from 'lucide-react';
-import { useVIP, VIP_TIERS } from '../context/VIPContext';
-import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { useVIP, VIP_TIERS } from '@/context/VIPContext';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 // ── Tier badge icon ───────────────────────────────────────
 const TierIcon = ({ tierId, size = 20 }) => {
@@ -253,7 +254,7 @@ const MemberDashboard = ({ tier, nextTier, points, progressToNext, totalSpend, j
                     Points are automatically added after each purchase. Higher tiers unlock premium benefits.
                 </p>
             </div>
-            <Link to="/shop" className="ml-auto flex-shrink-0 text-luxury-gold text-xs uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1">
+            <Link href="/shop" className="ml-auto flex-shrink-0 text-luxury-gold text-xs uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1">
                 Shop Now <ChevronRight size={12} />
             </Link>
         </div>
@@ -308,3 +309,5 @@ const VIPMembershipCard = () => {
 };
 
 export default VIPMembershipCard;
+
+

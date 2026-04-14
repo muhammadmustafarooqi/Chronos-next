@@ -1,10 +1,11 @@
+"use client";
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Heart, Eye, Check, GitCompare, AlertCircle, Crown } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { useVIP } from '../context/VIPContext';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { useVIP } from '@/context/VIPContext';
 
 const ProductCard = ({ product, index = 0, onCompare, isComparing = false }) => {
     const { addToCart, isInCart } = useCart();
@@ -146,8 +147,8 @@ const ProductCard = ({ product, index = 0, onCompare, isComparing = false }) => 
                                 <><ShoppingBag size={14} /> Add to Bag</>
                             )}
                         </button>
-                        <Link
-                            to={`/product/${productId}`}
+                        <Link 
+                            href={`/product/${productId}`}
                             className="flex items-center justify-center p-3 bg-white/10 border border-white/20 backdrop-blur-md text-white hover:bg-white hover:text-black transition-all duration-300"
                         >
                             <Eye size={16} />
@@ -173,7 +174,7 @@ const ProductCard = ({ product, index = 0, onCompare, isComparing = false }) => 
                         </span>
                     </div>
 
-                    <Link to={`/product/${productId}`}>
+                    <Link href={`/product/${productId}`}>
                         <h3 className="text-lg md:text-xl font-serif text-white mb-4 group-hover:text-luxury-gold transition-colors duration-500 min-h-[3.5rem] leading-snug">
                             {product.name}
                         </h3>
@@ -183,8 +184,8 @@ const ProductCard = ({ product, index = 0, onCompare, isComparing = false }) => 
                         <span className={`text-xl font-light tracking-wide ${isOutOfStock ? 'text-gray-600' : 'text-white'}`}>
                             ${product.price.toLocaleString()}
                         </span>
-                        <Link
-                            to={`/product/${productId}`}
+                        <Link 
+                            href={`/product/${productId}`}
                             className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.2em] group-hover:text-luxury-gold transition-colors duration-300 relative overflow-hidden pb-1"
                         >
                             <span className="relative z-10">Discover</span>
@@ -198,3 +199,5 @@ const ProductCard = ({ product, index = 0, onCompare, isComparing = false }) => 
 };
 
 export default ProductCard;
+
+

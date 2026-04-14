@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api from '@/services/api';
 import { useAuth } from './AuthContext';
 
 const OrderContext = createContext();
@@ -26,7 +27,7 @@ export const OrderProvider = ({ children }) => {
                 } catch (error) {
                     console.error('Error fetching orders:', error);
                     // Fallback to localStorage for offline support
-                    const saved = localStorage.getItem('chronos-orders');
+                    const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-orders') : null);
                     if (saved) {
                         setOrders(JSON.parse(saved));
                     }
@@ -51,8 +52,8 @@ export const OrderProvider = ({ children }) => {
             }
         };
 
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        typeof window !== 'undefined' && window.addEventListener('storage', handleStorageChange);
+        return () => typeof window !== 'undefined' && window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     const addOrder = async (orderData) => {
@@ -164,3 +165,4 @@ export const OrderProvider = ({ children }) => {
         </OrderContext.Provider>
     );
 };
+

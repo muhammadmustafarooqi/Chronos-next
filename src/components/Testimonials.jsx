@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+"use client";
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Star, Quote, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
@@ -56,7 +57,7 @@ const testimonials = [
 ];
 
 // Floating particle
-const Particle = ({ x, y, delay, size }) => (
+const Particle = ({ x, y, delay, size, duration }) => (
     <motion.div
         className="absolute rounded-full bg-luxury-gold"
         style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, opacity: 0 }}
@@ -66,7 +67,7 @@ const Particle = ({ x, y, delay, size }) => (
             scale: [0.5, 1, 0.5],
         }}
         transition={{
-            duration: 4 + Math.random() * 3,
+            duration: duration,
             repeat: Infinity,
             delay,
             ease: 'easeInOut',
@@ -114,14 +115,23 @@ const Testimonials = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [mounted, setMounted] = useState(false);
     const autoPlayRef = useRef(null);
 
-    const particles = Array.from({ length: 15 }, (_, i) => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        delay: i * 0.4,
-        size: Math.random() * 3 + 1,
-    }));
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const particles = useMemo(() => {
+        if (typeof window === 'undefined') return [];
+        return Array.from({ length: 15 }, (_, i) => ({
+            x: Math.random() * 100,
+            y: Math.random() * 100,
+            delay: i * 0.4,
+            size: Math.random() * 3 + 1,
+            duration: 4 + Math.random() * 3
+        }));
+    }, []);
 
     const goTo = (idx, dir) => {
         setDirection(dir);
@@ -167,7 +177,7 @@ const Testimonials = () => {
             {/* Background Elements */}
             <div className="absolute inset-0 bg-grid-pattern opacity-10" />
             <div className="absolute inset-0 pointer-events-none">
-                {particles.map((p, i) => <Particle key={i} {...p} />)}
+                {mounted && particles.map((p, i) => <Particle key={i} {...p} />)}
             </div>
 
             {/* Glowing gold orb */}

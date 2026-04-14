@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
@@ -7,7 +8,7 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('chronos-theme');
+            const saved = (typeof window !== 'undefined' ? localStorage.getItem('chronos-theme') : null);
             // Check system preference if no saved preference
             if (!saved) {
                 return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -45,8 +46,8 @@ export const ThemeProvider = ({ children }) => {
         const x = event.clientX;
         const y = event.clientY;
         const endRadius = Math.hypot(
-            Math.max(x, window.innerWidth - x),
-            Math.max(y, window.innerHeight - y)
+            Math.max(x, (typeof window !== 'undefined' ? window.innerWidth : 1000) - x),
+            Math.max(y, (typeof window !== 'undefined' ? window.innerHeight : 800) - y)
         );
 
         const transition = document.startViewTransition(() => {
@@ -84,3 +85,4 @@ export const ThemeProvider = ({ children }) => {
         </ThemeContext.Provider>
     );
 };
+

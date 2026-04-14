@@ -1,13 +1,14 @@
+"use client";
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, X, ChevronLeft, RotateCcw,
     ShoppingBag, Heart, ArrowRight, Star, Bot, Gem
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useWatches } from '../context/WatchContext';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
+import Link from 'next/link';
+import { useWatches } from '@/context/WatchContext';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 // ─────────────────────────────────────────────
 // QUESTION CONFIGURATION
@@ -478,8 +479,8 @@ const ResultCard = ({ watch, rank, delay }) => {
                         >
                             <ShoppingBag size={14} />
                         </button>
-                        <Link
-                            to={`/product/${watch._id || watch.id}`}
+                        <Link 
+                            href={`/product/${watch._id || watch.id}`}
                             className="p-2 bg-luxury-gold/10 hover:bg-luxury-gold text-luxury-gold hover:text-black transition-all duration-300 flex items-center"
                             title="View details"
                         >
@@ -539,8 +540,8 @@ const ResultsPhase = ({ recommendations, onRestart, onClose }) => (
                 <RotateCcw size={14} />
                 Try Again
             </button>
-            <Link
-                to="/shop"
+            <Link 
+                href="/shop"
                 onClick={onClose}
                 className="btn-primary text-sm flex items-center gap-2"
             >
@@ -575,8 +576,8 @@ const WatchMatchmaker = () => {
     // Listen for programmatic open from other components (e.g. Home page CTA)
     useEffect(() => {
         const handler = () => open();
-        window.addEventListener('open-matchmaker', handler);
-        return () => window.removeEventListener('open-matchmaker', handler);
+        typeof window !== 'undefined' && window.addEventListener('open-matchmaker', handler);
+        return () => typeof window !== 'undefined' && window.removeEventListener('open-matchmaker', handler);
     }, []);
 
     const close = () => setIsOpen(false);
@@ -753,3 +754,5 @@ const WatchMatchmaker = () => {
 };
 
 export default WatchMatchmaker;
+
+

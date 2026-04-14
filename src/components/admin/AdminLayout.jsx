@@ -1,5 +1,7 @@
+"use client";
+import Link from 'next/link';
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     Watch,
@@ -17,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const location = useLocation();
+    const pathname = usePathname();
 
     const menuItems = [
         { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -59,11 +61,11 @@ const AdminLayout = ({ children }) => {
                 <nav className="flex-1 px-4 py-8 space-y-2">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
-                        const isActive = location.pathname === item.path;
+                        const isActive = pathname === item.path;
                         return (
-                            <Link
+                            <Link 
                                 key={item.path}
-                                to={item.path}
+                                href={item.path}
                                 className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden ${isActive
                                         ? 'text-luxury-gold bg-luxury-gold/5'
                                         : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -94,8 +96,8 @@ const AdminLayout = ({ children }) => {
                 </nav>
 
                 <div className="p-4 mt-auto">
-                    <Link
-                        to="/"
+                    <Link 
+                        href="/"
                         className="flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-red-400/5 rounded-xl transition-all duration-300"
                     >
                         <LogOut size={22} />
@@ -149,3 +151,5 @@ const AdminLayout = ({ children }) => {
 };
 
 export default AdminLayout;
+
+

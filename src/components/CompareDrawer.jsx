@@ -1,8 +1,9 @@
+"use client";
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, GitCompare, ShoppingBag, Check, ArrowRight, Minus } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 // ── BOTTOM DRAWER ──────────────────────────────────────────────────
 const CompareDrawer = ({ items, onRemove, onClear }) => {
@@ -265,8 +266,8 @@ export const CompareModal = ({ items, onClose, onRemove }) => {
                                 {items.map(item => (
                                     <td key={item._id || item.id} className="p-6 text-gray-400 text-xs leading-loose border-r border-white/5 align-top">
                                         {item.description}
-                                        <Link
-                                            to={`/product/${item._id || item.id}`}
+                                        <Link 
+                                            href={`/product/${item._id || item.id}`}
                                             onClick={onClose}
                                             className="mt-6 flex items-center gap-2 text-luxury-gold hover:text-white uppercase tracking-widest text-[10px] font-semibold transition-colors w-max"
                                         >
@@ -286,3 +287,5 @@ export const CompareModal = ({ items, onClose, onRemove }) => {
 };
 
 export default CompareDrawer;
+
+

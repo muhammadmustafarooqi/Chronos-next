@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
@@ -52,3 +53,4 @@ const Toast = ({ message, type = 'error', onClose }) => {
 };
 
 export default Toast;
+
