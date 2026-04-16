@@ -78,8 +78,16 @@ const orderSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['pending', 'paid', 'failed'],
+        enum: ['pending', 'paid', 'succeeded', 'failed', 'canceled', 'refunded'],
         default: 'pending'
+    },
+    paymentIntentId: {
+        type: String,
+        default: null
+    },
+    paidAt: {
+        type: Date,
+        default: null
     },
     notes: {
         type: String,
@@ -108,6 +116,11 @@ orderSchema.pre('validate', function (next) {
         this.orderId = `ORD-${timestamp.toString().slice(-6)}-${random}`;
     }
     next();
+});
+
+// Add virtual for totalPrice (alias for totalAmount)
+orderSchema.virtual('totalPrice').get(function() {
+    return this.totalAmount;
 });
 
 const Order = mongoose.model('Order', orderSchema);

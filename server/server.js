@@ -21,6 +21,7 @@ import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import customerRoutes from './routes/customers.js';
 import wishlistRoutes from './routes/wishlist.js';
+import paymentRoutes from './routes/payments.js';
 import adminRoutes from './routes/admin.js';
 import conciergeRoutes from './routes/concierge.js';
 import configurationsRoutes from './routes/configurations.js';
@@ -94,6 +95,83 @@ app.use(xss());
 // Compress all responses
 app.use(compression());
 
+// ⚠️ STRIPE WEBHOOK ROUTE - Must be BEFORE express.json()
+// The webhook needs raw body for signature verification
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+        console.warn('[Webhook] STRIPE_WEBHOOK_SECRET not configured');
+        return res.status(400).send('Webhook secret not configured');
+    }
+
+    try {
+        const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+        
+        const Order = (await import('./models/Order.js')).default;
+        const { sendEmail } = await import('./utils/emailService.js');
+
+        // Handle different event types
+        switch (event.type) {
+            case 'payment_intent.succeeded': {
+                const paymentIntent = event.data.object;
+                const { orderId } = paymentIntent.metadata;
+                console.log(`[Webhook] Payment succeeded for order ${orderId}`);
+                await Order.findByIdAndUpdate(orderId, {
+                    paymentStatus: 'succeeded',
+                    status: 'Confirmed',
+                    paidAt: new Date(),
+                });
+                break;
+            }
+
+            case 'payment_intent.payment_failed': {
+                const paymentIntent = event.data.object;
+                const { orderId, email } = paymentIntent.metadata;
+                console.log(`[Webhook] Payment failed for order ${orderId}`);
+                const order = await Order.findByIdAndUpdate(orderId, {
+                    paymentStatus: 'failed',
+                    status: 'Payment Failed',
+                });
+                if (email && order) {
+                    await sendEmail({
+                        to: email,
+                        subject: `Payment Failed - Order #${orderId}`,
+                        template: 'orderConfirmation.html',
+                        variables: {
+                            customerName: order.customerName,
+                            orderId,
+                            message: 'Payment failed. Please try again or contact support.',
+                            totalPrice: (paymentIntent.amount / 100).toFixed(2),
+                        },
+                    });
+                }
+                break;
+            }
+
+            case 'charge.refunded': {
+                const charge = event.data.object;
+                console.log(`[Webhook] Charge refunded: ${charge.id}`);
+                const order = await Order.findOne({ paymentIntentId: charge.payment_intent });
+                if (order) {
+                    order.paymentStatus = 'refunded';
+                    order.status = 'Refunded';
+                    await order.save();
+                }
+                break;
+            }
+        }
+        
+        res.json({ received: true });
+    } catch (err) {
+        console.error('[Webhook] Error:', err.message);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+});
+
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -124,6 +202,7 @@ app.use('/api/auth/register', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
